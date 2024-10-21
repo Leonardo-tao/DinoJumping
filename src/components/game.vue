@@ -16,6 +16,9 @@ export default {
       canvasHeight: 170,
       dinoX: 10,
       dinoY: 0,
+      isClicked: false,
+      clickEvent: null,
+      keydownEvent: null,
       speed: 0,                   // 画面移动速度
       groundX: 0,                 // 地面坐标
       stage: 0,                   // 游戏阶段
@@ -143,6 +146,14 @@ export default {
       // 绘制边框，测试碰撞边界
       // this.drawBorder(x, y, w, h)
     },
+    clickHandle(e) {
+      this.isClicked = true
+      this.handleKeyDown(e)
+      if(this.isDied) {
+        this.resetGame()
+        this.isClicked = false
+      }
+    },
     /*  测试碰撞边界
     drawBorder(x, y, w, h, borderColor = 'black', borderSize = 2) {
       // 保存当前的绘图状态
@@ -169,20 +180,22 @@ export default {
     },
     // 处理键盘函数
     handleKeyDown(e) {
-      if (e.key === 'Enter' && !this.isRunning) {
+      if (!this.isRunning && (e.key === 'Enter' || this.isClicked)) {
         this.isRunning = true
         this.speed = 2
         this.play() // 启动动画
         this.scrollTimer = setInterval(this.updateScore, 8)
+        this.isClicked = false
       }
 
-      if (this.isRunning && e.key === ' ' && !this.isJumping) { // 按下空格键
+      if (this.isRunning && !this.isJumping && (e.key === ' ' || this.isClicked)) { // 按下空格键
         this.isJumping = true // 标记为正在跳跃
         this.$refs.jumpSound.play()
         this.jumpHeight = 0 // 重置跳跃高度
         this.jumpState = this.JUMP_STATE_ASCENDING
         this.jumpStartTime = Date.now() // 记录跳跃开始时间
         this.lastUpdateTime = Date.now() // 初始化最后更新时间
+        this.isClicked = false
       }
     },
     // 加速函数
@@ -392,9 +405,7 @@ export default {
       this.speed = 0
     },
     resetGame() {
-      if(this.isDied){
-        window.location.reload()
-      }
+      window.location.reload()
     }
   },
   mounted() {
@@ -421,8 +432,9 @@ export default {
     Promise.all(imagePromises)
     .then(() => {
         this.updateAnimations()       // 初始化
-        window.addEventListener('keydown', this.handleKeyDown)  // 监听键盘事件
-        document.getElementById('canvas').addEventListener('click', this.resetGame)
+        this.keydownEvent = window.addEventListener('keydown', this.handleKeyDown)  // 监听键盘事件
+        // this.$refs.canvas.addEventListener('click', this.resetGame)
+        this.clickEvent = this.$refs.canvas.addEventListener('click', this.clickHandle)
       })
       .catch(error => {
         console.error("图片加载失败：", error)
@@ -439,8 +451,8 @@ export default {
     if (this.scoreTimer) {
       clearInterval(this.scoreTimer)
     }
-    document.getElementById('canvas').removeEventListener('click', this.resetGame)
-    // window.removeEventListener('keydown', this.handleKeyDown)
+    this.$refs.canvas.removeEventListener(this.clickEvent)
+    window.removeEventListener(this.keydownEvent)
   }
 
 }
