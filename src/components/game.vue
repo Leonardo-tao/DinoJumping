@@ -1,8 +1,8 @@
 <template>
   <div class="game">
     <canvas id="canvas" ref="canvas" :width="canvasWidth" :height="canvasHeight" />
-    <audio ref="jumpSound" src="https://tao811.github.io/DinoJumping/jump.mp3" preload="auto"></audio>
-    <audio ref="defeatSound" src="https://tao811.github.io/DinoJumping/defeat.mp3" preload="auto"></audio>
+    <audio ref="jumpSound" src="https://leonardotao.github.io/DinoJumping/jump.mp3" preload="auto"></audio>
+    <audio ref="defeatSound" src="https://leonardotao.github.io/DinoJumping/defeat.mp3" preload="auto"></audio>
   </div>
 </template>
 
